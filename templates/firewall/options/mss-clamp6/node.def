@@ -1,0 +1,24 @@
+help: Enable IPv6 TCP MSS clamping for specified interface types
+
+end:
+    cname=UBNT_FW_MSS_CLAMP
+    mss='$VAR(mss/@)'
+    types='$VAR(interface-type/@@)'
+    if [ -z "$types" ]; then
+        types='pppoe pptp tun'
+    fi  
+    if [ -d /proc/sys/net/ipv6 ]; then
+        sudo ip6tables -t mangle -D FORWARD -j $cname >&/dev/null
+        sudo ip6tables -t mangle -F $cname >&/dev/null
+        sudo ip6tables -t mangle -X $cname >&/dev/null
+    fi
+    if [ "$COMMIT_ACTION" != DELETE ]; then
+        if [ -d /proc/sys/net/ipv6 ]; then
+            sudo ip6tables -t mangle -N $cname
+            sudo ip6tables -t mangle -A FORWARD -j $cname
+            for intf in $types; do
+                sudo ip6tables -t mangle -A $cname -o ${intf}+ -p tcp \
+                    --tcp-flags SYN,RST SYN -j TCPMSS --set-mss $mss
+            done
+       fi
+    fi

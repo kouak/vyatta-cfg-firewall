@@ -1,0 +1,5 @@
+type: u32
+default: 1412
+syntax:expression: $VAR(@) >= 1280 && $VAR(@) <= 1492; \
+    "MSS must be between 1280 and 1492"
+help: MSS value

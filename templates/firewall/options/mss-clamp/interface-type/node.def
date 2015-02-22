@@ -1,0 +1,10 @@
+multi:
+type: txt
+help: Interface type(s)
+syntax:expression: $VAR(@) in "pppoe", "pptp", "tun", "vti"; \
+    "Interface type must be \"pppoe\", \"pptp\", \"tun\", or \"vti\""
+
+val_help: pppoe; PPPoE interfaces
+val_help: pptp; PPtP interfaces
+val_help: tun; Tunnel interfaces
+val_help: vti; Virtual Tunnel Interface

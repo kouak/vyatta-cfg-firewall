@@ -1,0 +1,20 @@
+help: Enable IPv4 TCP MSS clamping for specified interface types
+
+end:
+    cname=VYOS_FW_MSS_CLAMP
+    mss='$VAR(mss/@)'
+    types='$VAR(interface-type/@@)'
+    if [ -z "$types" ]; then
+        types='pppoe pptp tun vti'
+    fi
+    sudo iptables -t mangle -D FORWARD -j $cname >&/dev/null
+    sudo iptables -t mangle -F $cname >&/dev/null
+    sudo iptables -t mangle -X $cname >&/dev/null
+    if [ "$COMMIT_ACTION" != DELETE ]; then
+        sudo iptables -t mangle -N $cname
+        sudo iptables -t mangle -A FORWARD -j $cname
+        for intf in $types; do
+            sudo iptables -t mangle -A $cname -o ${intf}+ -p tcp \
+                --tcp-flags SYN,RST SYN -j TCPMSS --set-mss $mss
+        done
+    fi
